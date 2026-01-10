@@ -1,0 +1,423 @@
+{
+  "info": {
+    "name": "Quantum Mail Backend API",
+    "description": "Complete API collection for Quantum Mail Backend with QKD, Multi-level encryption, and Blockchain auditing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwtToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"sakthivel\",\n  \"email\": \"svel7252@gmail.com\",\n  \"password\": \"sakthivel\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["register"]
+            },
+            "description": "Register a new user account - Sakthivel"
+          }
+        },
+        {
+          "name": "Register Second User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"sakthivel dhanushkodi\",\n  \"email\": \"sakthiveldofficial@gmail.com\",\n  \"password\": \"sakthivel\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["register"]
+            },
+            "description": "Register second user account - Sakthivel Dhanushkodi (for recipient testing)"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('jwtToken', pm.response.text().replace(/\"/g, ''));",
+                  "    console.log('JWT Token saved:', pm.collectionVariables.get('jwtToken'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"sakthivel\",\n  \"password\": \"sakthivel\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            },
+            "description": "Login and get JWT token (automatically saved to collection variables)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Management",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/list",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "list"]
+            },
+            "description": "Retrieve list of all users (requires authentication)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. QKD Key Management",
+      "item": [
+        {
+          "name": "Obtain Quantum Keys",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numberOfKeys\": 5,\n  \"keySize\": 256\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/qkd/obtain-keys",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "qkd", "obtain-keys"]
+            },
+            "description": "Obtain quantum keys from Key Manager (ETSI GS QKD 014)"
+          }
+        },
+        {
+          "name": "Get Key Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/qkd/key-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "qkd", "key-status"]
+            },
+            "description": "Get active quantum key count for current user"
+          }
+        },
+        {
+          "name": "Activate Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/qkd/activate-key/:keyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "qkd", "activate-key", ":keyId"],
+              "variable": [
+                {
+                  "key": "keyId",
+                  "value": "QK_abc-123-def"
+                }
+              ]
+            },
+            "description": "Activate a reserved quantum key"
+          }
+        },
+        {
+          "name": "Destroy Key",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/qkd/destroy-key/:keyId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "qkd", "destroy-key", ":keyId"],
+              "variable": [
+                {
+                  "key": "keyId",
+                  "value": "QK_abc-123-def"
+                }
+              ]
+            },
+            "description": "Securely destroy a used or expired quantum key"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Quantum Email",
+      "item": [
+        {
+          "name": "Send Quantum Email (QUANTUM_AIDED_AES)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientEmail\": \"sakthiveldofficial@gmail.com\",\n  \"subject\": \"Quantum Secured Message\",\n  \"content\": \"This is a test message encrypted with quantum keys!\",\n  \"securityLevel\": \"QUANTUM_AIDED_AES\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum-email/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum-email", "send"]
+            },
+            "description": "Send quantum-secured email with QUANTUM_AIDED_AES (Level 2 - Recommended)"
+          }
+        },
+        {
+          "name": "Send Quantum Email (QUANTUM_SECURE_OTP)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientEmail\": \"sakthiveldofficial@gmail.com\",\n  \"subject\": \"Top Secret\",\n  \"content\": \"Short secret message\",\n  \"securityLevel\": \"QUANTUM_SECURE_OTP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum-email/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum-email", "send"]
+            },
+            "description": "Send with One-Time Pad (Level 1 - Maximum Security for short messages)"
+          }
+        },
+        {
+          "name": "Send Email with Attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipientEmail\": \"sakthiveldofficial@gmail.com\",\n  \"subject\": \"Document Transfer\",\n  \"content\": \"Please find the attached document.\",\n  \"securityLevel\": \"QUANTUM_AIDED_AES\",\n  \"attachments\": [\n    {\n      \"fileName\": \"test.txt\",\n      \"contentType\": \"text/plain\",\n      \"base64Data\": \"VGhpcyBpcyBhIHRlc3QgZmlsZQ==\",\n      \"fileSize\": 19\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum-email/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum-email", "send"]
+            },
+            "description": "Send quantum-secured email with encrypted attachment"
+          }
+        },
+        {
+          "name": "Get Sent Emails",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum-email/sent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum-email", "sent"]
+            },
+            "description": "Retrieve list of emails sent by current user"
+          }
+        },
+        {
+          "name": "Get Received Emails",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum-email/received",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum-email", "received"]
+            },
+            "description": "Retrieve list of emails received by current user"
+          }
+        },
+        {
+          "name": "Decrypt Email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/quantum-email/decrypt/:emailId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "quantum-email", "decrypt", ":emailId"],
+              "variable": [
+                {
+                  "key": "emailId",
+                  "value": "email-id-123"
+                }
+              ]
+            },
+            "description": "Decrypt and read a specific email"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Blockchain Verification",
+      "item": [
+        {
+          "name": "Verify Transaction",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/blockchain/verify/:transactionHash",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blockchain", "verify", ":transactionHash"],
+              "variable": [
+                {
+                  "key": "transactionHash",
+                  "value": "0xabc123def456"
+                }
+              ]
+            },
+            "description": "Verify blockchain transaction for email"
+          }
+        },
+        {
+          "name": "Get Transaction Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/blockchain/transaction/:transactionHash",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "blockchain", "transaction", ":transactionHash"],
+              "variable": [
+                {
+                  "key": "transactionHash",
+                  "value": "0xabc123def456"
+                }
+              ]
+            },
+            "description": "Get detailed blockchain transaction information"
+          }
+        }
+      ]
+    }
+  ]
+}
+

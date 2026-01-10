@@ -1,0 +1,118 @@
+/**
+}
+  return badges[level] || badges[4];
+  };
+    4: '<span class="badge badge-secondary">🔓 Standard</span>'
+    3: '<span class="badge badge-warning">🔒 PQC</span>',
+    2: '<span class="badge badge-info">🛡️ Quantum-AES</span>',
+    1: '<span class="badge badge-success">🔐 Quantum Secure</span>',
+  const badges = {
+function getSecurityBadge(level) {
+
+}
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // Older
+
+  }
+    return date.toLocaleDateString('en-US', { weekday: 'short' });
+  if (diff < 604800000) {
+  // Less than 7 days
+
+  }
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  if (diff < 86400000) {
+  // Less than 24 hours
+
+  const diff = now - date;
+  const now = new Date();
+  const date = new Date(dateString);
+function formatDate(dateString) {
+
+}
+  return container;
+
+  loadEmails();
+  // Load emails
+
+  render();
+  // Initial render
+
+  store.subscribe(render);
+  // Subscribe to store changes
+
+  };
+    window.dispatchEvent(new CustomEvent('email:open', { detail: emailId }));
+  const openEmail = (emailId) => {
+
+  };
+    }
+      store.setLoading(false);
+      store.setError(error.message);
+    } catch (error) {
+      store.setLoading(false);
+      store.setEmails(type, response.emails || []);
+
+        : await emailAPI.getSent();
+        ? await emailAPI.getInbox()
+      const response = type === 'inbox'
+      store.setLoading(true);
+    try {
+  const loadEmails = async () => {
+
+  };
+    });
+      });
+        openEmail(emailId);
+        const emailId = item.dataset.emailId;
+      item.addEventListener('click', () => {
+    emailItems.forEach(item => {
+    const emailItems = container.querySelectorAll('.email-item');
+
+    }
+      refreshBtn.addEventListener('click', loadEmails);
+    if (refreshBtn) {
+    const refreshBtn = container.querySelector('#refreshBtn');
+    // Add event listeners
+
+    `;
+      </div>
+        `).join('')}
+          </div>
+            </div>
+              ${getSecurityBadge(email.securityLevel)}
+            <div class="email-security">
+            <div class="email-preview">${email.preview || ''}</div>
+            <div class="email-subject">${email.subject}</div>
+            </div>
+              <span class="email-date">${formatDate(email.date)}</span>
+              <span class="email-from">${type === 'inbox' ? email.from : email.to}</span>
+            <div class="email-item-header">
+          <div class="email-item ${email.read ? '' : 'unread'}" data-email-id="${email.id}">
+        ` : emails.map(email => `
+          </div>
+            <p>No emails ${type === 'inbox' ? 'received' : 'sent'} yet</p>
+          <div class="empty-state">
+        ${emails.length === 0 ? `
+      <div class="email-list">
+
+      </div>
+        <button class="btn btn-refresh" id="refreshBtn">🔄 Refresh</button>
+        <h2>${type === 'inbox' ? '📥 Inbox' : '📤 Sent'}</h2>
+      <div class="email-list-header">
+    container.innerHTML = `
+
+    const emails = state.emails[type] || [];
+    const state = store.getState();
+  const render = () => {
+
+  container.className = 'email-list-container';
+  const container = document.createElement('div');
+export function createEmailListComponent(type = 'inbox') {
+
+import store from '../../store/store.js';
+import emailAPI from '../../api/email.js';
+
+ */
+ * Displays inbox or sent emails
+ * Email List Component
+
