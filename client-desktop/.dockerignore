@@ -1,0 +1,56 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build output
+.vite
+dist
+out
+.output
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+test
+tests
+__tests__
+*.test.js
+*.spec.js
+
+# Misc
+coverage
+.nyc_output
+.cache
+tmp
+temp

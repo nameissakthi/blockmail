@@ -599,6 +599,142 @@ For issues or questions:
 
 ---
 
+## 🐳 Docker Image Usage
+
+The server has been containerized and is available as a Docker image with tag **0.0.1**.
+
+### Running the Server Docker Image
+
+#### Option 1: Run Standalone Container
+
+```bash
+# Pull or use the local image
+sudo docker run -d \
+  --name quantum-mail-server \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blockmail \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=sakthivel \
+  -e SPRING_SECURITY_JWT_SECRET_KEY=sakthivelcms \
+  -e QKD_KEYMANAGER_MOCK_MODE=true \
+  quantum-mail-server:0.0.1
+```
+
+#### Option 2: Run with Docker Compose (Recommended)
+
+The server includes a complete Docker Compose setup with PostgreSQL:
+
+```bash
+# Start all services (server + database)
+cd server
+sudo docker-compose up -d
+
+# View logs
+sudo docker-compose logs -f quantum-mail-backend
+
+# Stop services
+sudo docker-compose down
+
+# Stop and remove volumes (clean restart)
+sudo docker-compose down -v
+```
+
+### Docker Image Details
+
+- **Image Name**: `quantum-mail-server:0.0.1`
+- **Base Image**: Eclipse Temurin 21 JRE Alpine
+- **Size**: ~335MB
+- **Exposed Port**: 8080
+- **Health Check**: `/actuator/health` endpoint
+
+### Environment Variables
+
+Configure the container using these environment variables:
+
+```bash
+# Database Configuration
+SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blockmail
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=your_password
+
+# JWT Security
+SPRING_SECURITY_JWT_SECRET_KEY=your_secret_key
+SPRING_SECURITY_JWT_EXPIRATION_MS=86400000
+
+# QKD Configuration
+QKD_KEYMANAGER_MOCK_MODE=true
+QKD_KEYMANAGER_DEFAULT_KEY_SIZE=256
+QKD_KEYMANAGER_KEY_POOL_SIZE=10
+
+# Mail Configuration
+SPRING_MAIL_HOST=smtp.gmail.com
+SPRING_MAIL_PORT=587
+SPRING_MAIL_USERNAME=your_email@gmail.com
+SPRING_MAIL_PASSWORD=your_app_password
+
+# CORS Configuration
+CLIENT_URLS=http://localhost:5173,http://localhost:3000
+
+# Java Options
+JAVA_OPTS=-Xmx512m -Xms256m
+```
+
+### Accessing the API
+
+Once the container is running:
+
+- **API Base URL**: http://localhost:8080
+- **Health Check**: http://localhost:8080/actuator/health
+- **Swagger UI** (if enabled): http://localhost:8080/swagger-ui.html
+
+### Testing the Deployment
+
+```bash
+# Check if the container is running
+sudo docker ps | grep quantum-mail-server
+
+# Check container logs
+sudo docker logs quantum-mail-server
+
+# Test the health endpoint
+curl http://localhost:8080/actuator/health
+
+# Test user registration
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "Test@123"
+  }'
+```
+
+### Troubleshooting
+
+**Container won't start:**
+```bash
+# Check logs for errors
+sudo docker logs quantum-mail-server
+
+# Check if port 8080 is already in use
+sudo netstat -tulpn | grep 8080
+
+# Remove and restart container
+sudo docker rm -f quantum-mail-server
+sudo docker run -d --name quantum-mail-server -p 8080:8080 quantum-mail-server:0.0.1
+```
+
+**Database connection issues:**
+```bash
+# Ensure PostgreSQL is running
+sudo docker ps | grep postgres
+
+# Check database connectivity
+sudo docker exec quantum-mail-server curl -f postgres:5432
+```
+
+---
+
 ## 🎉 Congratulations!
 
 You now have a fully functional **Quantum Mail Backend** with:
@@ -608,13 +744,14 @@ You now have a fully functional **Quantum Mail Backend** with:
 - ✅ Secure email operations
 - ✅ Complete REST API
 - ✅ JWT authentication
+- ✅ **Docker containerization with tag 0.0.1**
 
 **The application is ready to run and test!** 🚀
 
 ---
 
 **Build Status**: ✅ SUCCESS  
-**Total Implementation Time**: ~3.4 seconds compile  
+**Docker Image**: ✅ quantum-mail-server:0.0.1 (335MB)  
 **Total Files Created**: 40+ files  
 **Lines of Code**: ~5000+ lines  
 **Ready for**: Development, Testing, and Production (with real QKD/Blockchain integration)

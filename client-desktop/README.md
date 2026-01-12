@@ -274,6 +274,194 @@ Update `forge.config.js` for your platform:
 - macOS: Configure DMG/PKG
 - Linux: Configure DEB/RPM packages
 
+---
+
+## 🐳 Docker Image Usage
+
+The desktop client has been containerized and is available as a Docker image with tag **0.0.1**.
+
+### Running the Client Docker Image
+
+#### Basic Usage
+
+```bash
+# Run the client container
+sudo docker run -d \
+  --name quantum-mail-client \
+  -p 5173:5173 \
+  -e VITE_API_BASE_URL=http://localhost:8080 \
+  quantum-mail-client:0.0.1
+```
+
+#### With Custom Backend URL
+
+```bash
+# Connect to a specific backend server
+sudo docker run -d \
+  --name quantum-mail-client \
+  -p 5173:5173 \
+  -e VITE_API_BASE_URL=http://192.168.1.100:8080 \
+  -e VITE_API_TIMEOUT=30000 \
+  quantum-mail-client:0.0.1
+```
+
+#### Run Both Client and Server Together
+
+If you have both the server and client images, you can run them together:
+
+```bash
+# 1. Create a network
+sudo docker network create quantum-mail-network
+
+# 2. Run PostgreSQL database
+sudo docker run -d \
+  --name quantum-mail-postgres \
+  --network quantum-mail-network \
+  -e POSTGRESQL_USERNAME=postgres \
+  -e POSTGRESQL_PASSWORD=sakthivel \
+  -e POSTGRESQL_DATABASE=blockmail \
+  -p 5432:5432 \
+  bitnami/postgresql:latest
+
+# 3. Run the backend server
+sudo docker run -d \
+  --name quantum-mail-server \
+  --network quantum-mail-network \
+  -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://quantum-mail-postgres:5432/blockmail \
+  -e SPRING_DATASOURCE_USERNAME=postgres \
+  -e SPRING_DATASOURCE_PASSWORD=sakthivel \
+  -e QKD_KEYMANAGER_MOCK_MODE=true \
+  quantum-mail-server:0.0.1
+
+# 4. Run the client
+sudo docker run -d \
+  --name quantum-mail-client \
+  --network quantum-mail-network \
+  -p 5173:5173 \
+  -e VITE_API_BASE_URL=http://quantum-mail-server:8080 \
+  quantum-mail-client:0.0.1
+
+# 5. Access the application
+# Open your browser to: http://localhost:5173
+```
+
+### Docker Image Details
+
+- **Image Name**: `quantum-mail-client:0.0.1`
+- **Base Image**: Node.js 20 Alpine with Electron support
+- **Size**: ~1.82GB
+- **Exposed Port**: 5173
+- **Display**: Uses Xvfb for headless operation
+
+### Environment Variables
+
+```bash
+# Backend API Configuration
+VITE_API_BASE_URL=http://localhost:8080        # Backend server URL
+VITE_API_TIMEOUT=30000                         # API timeout in milliseconds
+VITE_DEV_MODE=false                            # Development mode flag
+
+# Electron Configuration
+DISPLAY=:99                                     # Virtual display (auto-configured)
+NODE_ENV=production                            # Node environment
+ELECTRON_DISABLE_SANDBOX=1                     # Sandbox mode (for Docker)
+```
+
+### Managing the Container
+
+```bash
+# View container logs
+sudo docker logs quantum-mail-client
+
+# Follow logs in real-time
+sudo docker logs -f quantum-mail-client
+
+# Stop the container
+sudo docker stop quantum-mail-client
+
+# Start the container
+sudo docker start quantum-mail-client
+
+# Remove the container
+sudo docker rm -f quantum-mail-client
+
+# Check container status
+sudo docker ps | grep quantum-mail-client
+
+# Access container shell (for debugging)
+sudo docker exec -it quantum-mail-client sh
+```
+
+### Troubleshooting
+
+**Container starts but app doesn't load:**
+```bash
+# Check if Xvfb is running
+sudo docker exec quantum-mail-client pgrep -f Xvfb
+
+# Check Electron process
+sudo docker exec quantum-mail-client pgrep -f electron
+
+# Restart the container
+sudo docker restart quantum-mail-client
+```
+
+**Cannot connect to backend:**
+```bash
+# Check backend URL configuration
+sudo docker inspect quantum-mail-client | grep VITE_API_BASE_URL
+
+# Test backend connectivity from container
+sudo docker exec quantum-mail-client wget -O- http://localhost:8080/actuator/health
+
+# Ensure backend is running
+sudo docker ps | grep quantum-mail-server
+```
+
+**Port already in use:**
+```bash
+# Check what's using port 5173
+sudo netstat -tulpn | grep 5173
+
+# Use a different port
+sudo docker run -d \
+  --name quantum-mail-client \
+  -p 8173:5173 \
+  -e VITE_API_BASE_URL=http://localhost:8080 \
+  quantum-mail-client:0.0.1
+
+# Access at: http://localhost:8173
+```
+
+### Quick Stop All Containers
+
+```bash
+# Stop all Quantum Mail containers
+sudo docker stop quantum-mail-client quantum-mail-server quantum-mail-postgres
+
+# Remove all containers
+sudo docker rm quantum-mail-client quantum-mail-server quantum-mail-postgres
+
+# Remove the network
+sudo docker network rm quantum-mail-network
+```
+
+### Notes on Running Electron in Docker
+
+⚠️ **Important**: Running Electron in Docker is primarily useful for:
+- Development and testing environments
+- CI/CD pipelines
+- Automated testing with headless browsers
+
+For production desktop applications, it's recommended to:
+1. Build the Electron app using `pnpm run make`
+2. Distribute the generated installers from the `out/` directory
+3. Users install the native app on their local machines
+4. The app connects to your Dockerized backend API
+
+---
+
 ## Contributing
 
 This is a demonstration application for quantum-secure email communication. Contributions are welcome!
@@ -289,4 +477,6 @@ For questions or support, please refer to the project repository.
 ---
 
 **Note**: This application requires a compatible backend server implementing the BlockMail API and a Key Manager service implementing ETSI GS QKD 014 protocol.
+
+**Docker Image**: ✅ quantum-mail-client:0.0.1 (1.82GB) - Ready for deployment!
 
