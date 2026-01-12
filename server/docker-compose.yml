@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: quantum-mail-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=sakthivel
+      - POSTGRESQL_DATABASE=blockmail
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/bitnami/postgresql
+    networks:
+      - quantum-mail-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Quantum Mail Backend Application
+  quantum-mail-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quantum-mail-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blockmail
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=sakthivel
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+      # Server Configuration
+      - SERVER_PORT=8080
+      - SERVER_ADDRESS=0.0.0.0
+
+      # JWT Configuration
+      - SPRING_SECURITY_JWT_SECRET_KEY=sakthivelcms
+      - SPRING_SECURITY_JWT_EXPIRATION_MS=86400000
+
+      # Mail Configuration
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=sakthiveldkodi@gmail.com
+      - SPRING_MAIL_PASSWORD=yjzagbpzxlmnepev
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+
+      # QKD Configuration
+      - QKD_KEYMANAGER_MOCK_MODE=true
+      - QKD_KEYMANAGER_DEFAULT_KEY_SIZE=256
+      - QKD_KEYMANAGER_KEY_POOL_SIZE=10
+      - QKD_KEYMANAGER_KEY_LIFETIME_SECONDS=3600
+
+      # CORS Configuration
+      - CLIENT_URLS=http://localhost:5173,http://localhost:5174,http://localhost:3000,http://localhost:5175
+
+      # Java Options
+      - JAVA_OPTS=-Xmx512m -Xms256m
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quantum-mail-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  quantum-mail-network:
+    driver: bridge
+

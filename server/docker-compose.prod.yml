@@ -1,0 +1,123 @@
+version: '3.8'
+
+# Production Docker Compose Configuration for Quantum Mail Backend
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: quantum-mail-postgres-prod
+    restart: always
+    environment:
+      - POSTGRESQL_USERNAME=${DB_USERNAME:-postgres}
+      - POSTGRESQL_PASSWORD=${DB_PASSWORD:-sakthivel}
+      - POSTGRESQL_DATABASE=${DB_NAME:-blockmail}
+      - POSTGRESQL_MAX_CONNECTIONS=100
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data_prod:/bitnami/postgresql
+      - ./backups:/backups
+    networks:
+      - quantum-mail-network-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Quantum Mail Backend Application
+  quantum-mail-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: quantum-mail-backend:production
+    container_name: quantum-mail-backend-prod
+    restart: always
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${DB_NAME:-blockmail}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-sakthivel}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=false
+
+      # Server Configuration
+      - SERVER_PORT=8080
+      - SERVER_ADDRESS=0.0.0.0
+
+      # JWT Configuration (MUST be overridden in production)
+      - SPRING_SECURITY_JWT_SECRET_KEY=${JWT_SECRET_KEY:-CHANGE_ME_IN_PRODUCTION}
+      - SPRING_SECURITY_JWT_EXPIRATION_MS=${JWT_EXPIRATION:-86400000}
+
+      # Mail Configuration
+      - SPRING_MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - SPRING_MAIL_PORT=${MAIL_PORT:-587}
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD}
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+
+      # QKD Configuration
+      - QKD_KEYMANAGER_MOCK_MODE=${QKD_MOCK_MODE:-false}
+      - QKD_KEYMANAGER_BASE_URL=${QKD_BASE_URL:-http://localhost:8080/api/v1/keys}
+      - QKD_KEYMANAGER_DEFAULT_KEY_SIZE=${QKD_KEY_SIZE:-256}
+      - QKD_KEYMANAGER_KEY_POOL_SIZE=${QKD_POOL_SIZE:-10}
+      - QKD_KEYMANAGER_KEY_LIFETIME_SECONDS=${QKD_LIFETIME:-3600}
+
+      # CORS Configuration
+      - CLIENT_URLS=${CORS_ORIGINS:-http://localhost:5173}
+
+      # Java Options (Production tuned)
+      - JAVA_OPTS=-Xmx768m -Xms384m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication
+
+      # Actuator Configuration
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when-authorized
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quantum-mail-network-prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data_prod:
+    driver: local
+
+networks:
+  quantum-mail-network-prod:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+

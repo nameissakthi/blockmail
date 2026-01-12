@@ -1,0 +1,63 @@
+# .dockerignore for Quantum Mail Backend
+# Ignore build artifacts
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# Ignore Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.classpath
+.project
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore test files
+src/test/
+
+# Ignore git
+.git/
+.gitignore
+.gitattributes
+
+# Ignore documentation
+*.md
+HELP.md
+README.md
+QUICK_REFERENCE.md
+
+# Ignore shell scripts (not needed in container)
+*.sh
+
+# Ignore Postman collections
+*.postman_collection.json
+
+# Ignore SQL migration files (should be handled separately)
+*.sql
+
+# Ignore temp files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore
+
