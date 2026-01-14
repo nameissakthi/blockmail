@@ -1,0 +1,3 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.sakthivel.blockmail.config.DotEnvConfig
+

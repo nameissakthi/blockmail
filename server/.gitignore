@@ -31,3 +31,51 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables & Secrets ###
+.env
+.env.local
+.env.*.local
+*.env
+# Keep .env.example for documentation
+!.env.example
+
+### Application Properties (contains sensitive data) ###
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+application.properties
+application-*.properties
+# Keep example for documentation
+!src/main/resources/application.properties.example
+!application.properties.example
+
+### Node.js ###
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+### Hardhat ###
+cache/
+artifacts/
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+### Blockchain Development ###
+cache/
+artifacts/
+deployments/
+deployment-info.json
+blockchain-config.json
+
+### Hardhat ###
+.hardhat/
+*.backup
+
+### Logs ###
+*.log
+logs/
+app.pid
+

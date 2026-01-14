@@ -18,13 +18,13 @@ spring.jpa.show-sql=true
 # Email Configuration (Gmail SMTP)
 spring.mail.host=${MAIL_HOST:smtp.gmail.com}
 spring.mail.port=${MAIL_PORT:587}
-spring.mail.username=${MAIL_USERNAME:}
-spring.mail.password=${MAIL_PASSWORD:}
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
 # JWT Security
-spring.security.jwt.secret-key=${JWT_SECRET:4e6118d687bcf565a2677a4bd7cb5c6de8c09bbaec72a9e49d25ef4894cd8be6f3a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0}
+spring.security.jwt.secret-key=${JWT_SECRET}
 spring.security.jwt.expiration-ms=86400000
 
 # QKD Key Manager Configuration (ETSI GS QKD 014)

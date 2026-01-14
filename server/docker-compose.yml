@@ -22,37 +22,72 @@ services:
       timeout: 5s
       retries: 5
 
-  # Quantum Mail Backend Application
+  # Ganache Blockchain (Local Ethereum Network)
+  ganache:
+    image: trufflesuite/ganache:v7.9.1
+    container_name: quantum-mail-ganache
+    restart: unless-stopped
+    ports:
+      - "7545:8545"
+      - "8545:8545"
+    command: >
+      --wallet.mnemonic "test test test test test test test test test test test junk"
+      --chain.chainId 1337
+      --server.host 0.0.0.0
+      --server.port 8545
+      --database.dbPath /ganache-data
+      --wallet.defaultBalance 100
+      --miner.blockGasLimit 12000000
+      --chain.allowUnlimitedContractSize true
+    volumes:
+      - ganache_data:/ganache-data
+    networks:
+      - quantum-mail-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8545 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Quantum Mail Backend Application with Blockchain Integration
   quantum-mail-backend:
     build:
       context: .
       dockerfile: Dockerfile
+    image: quantum-mail:v2
     container_name: quantum-mail-backend
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
       # Database Configuration
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blockmail
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=sakthivel
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=blockmail
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=sakthivel
 
       # Server Configuration
       - SERVER_PORT=8080
-      - SERVER_ADDRESS=0.0.0.0
 
       # JWT Configuration
-      - SPRING_SECURITY_JWT_SECRET_KEY=sakthivelcms
-      - SPRING_SECURITY_JWT_EXPIRATION_MS=86400000
+      - JWT_SECRET=4e6118d687bcf565a2677a4bd7cb5c6de8c09bbaec72a9e49d25ef4894cd8be6f3a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0
 
-      # Mail Configuration
-      - SPRING_MAIL_HOST=smtp.gmail.com
-      - SPRING_MAIL_PORT=587
-      - SPRING_MAIL_USERNAME=sakthiveldkodi@gmail.com
-      - SPRING_MAIL_PASSWORD=yjzagbpzxlmnepev
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
-      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      # Mail Configuration (Optional - update with your credentials)
+      - MAIL_HOST=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+
+      # Blockchain Configuration (Ganache)
+      - BLOCKCHAIN_ENABLED=true
+      - BLOCKCHAIN_NETWORK=ganache
+      - BLOCKCHAIN_RPC_URL=http://ganache:8545
+      - BLOCKCHAIN_CHAIN_ID=1337
+      - BLOCKCHAIN_CONTRACT_ADDRESS=${BLOCKCHAIN_CONTRACT_ADDRESS:-}
+      - BLOCKCHAIN_GAS_LIMIT=6721975
+      - BLOCKCHAIN_GAS_PRICE=20000000000
+      - GANACHE_PRIVATE_KEY=0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d
 
       # QKD Configuration
       - QKD_KEYMANAGER_MOCK_MODE=true
@@ -64,21 +99,27 @@ services:
       - CLIENT_URLS=http://localhost:5173,http://localhost:5174,http://localhost:3000,http://localhost:5175
 
       # Java Options
-      - JAVA_OPTS=-Xmx512m -Xms256m
+      - JAVA_OPTS=-Xmx768m -Xms384m
     depends_on:
       postgres:
         condition: service_healthy
+      ganache:
+        condition: service_healthy
     networks:
       - quantum-mail-network
+    volumes:
+      - ./.env:/app/.env:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 90s
 
 volumes:
   postgres_data:
+    driver: local
+  ganache_data:
     driver: local
 
 networks:
