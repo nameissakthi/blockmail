@@ -18,10 +18,10 @@ public class WebConfig implements WebMvcConfigurer {
         String[] allowedOrigins = frontendUrls.split(",");
 
         registry.addMapping("/**")
-                .allowedOriginPatterns("*") // Allow all origins including Electron
+                .allowedOriginPatterns("*") // Allow all origins including Electron (file://)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
                 .allowedHeaders("*")
-                .exposedHeaders("Authorization", "Content-Type")
+                .exposedHeaders("Authorization", "Content-Type", "X-Total-Count")
                 .allowCredentials(true)
                 .maxAge(3600);
     }
