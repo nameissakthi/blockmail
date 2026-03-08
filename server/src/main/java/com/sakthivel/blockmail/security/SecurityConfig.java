@@ -36,8 +36,16 @@ public class SecurityConfig {
                 }))
                 .csrf(CsrfConfigurer::disable)
                 .authorizeHttpRequests(request ->
-                            request.requestMatchers("/register", "/login", "/api/otp/**").permitAll()
-                                    .anyRequest().authenticated()
+                            request.requestMatchers(
+                                    "/",
+                                    "/register",
+                                    "/login",
+                                    "/api/otp/**",
+                                    "/actuator/health",
+                                    "/actuator/health/**",
+                                    "/error"
+                            ).permitAll()
+                            .anyRequest().authenticated()
                         )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

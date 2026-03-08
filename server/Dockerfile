@@ -11,7 +11,7 @@ COPY contracts/ ./contracts/
 COPY scripts/ ./scripts/
 
 # Install Node.js dependencies (including dev dependencies for Hardhat)
-RUN npm ci && \
+RUN npm install && \
     npx hardhat compile
 
 # Stage 2: Java Application Build
@@ -64,8 +64,6 @@ COPY scripts/ ./blockchain/scripts/
 # Copy the built JAR from java-builder
 COPY --from=java-builder /app/target/server-0.0.1-SNAPSHOT.jar app.jar
 
-# Copy .env file (will be overridden by docker-compose)
-COPY .env.example .env
 
 # Change ownership to spring user
 RUN chown -R spring:spring /app

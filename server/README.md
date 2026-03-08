@@ -66,6 +66,27 @@ npx hardhat run scripts/deploy.js --network ganache
 3. Configure `.env` file (copy from `.env.example`)
 4. Run `ServerApplication.java`
 
+### Option 4: Docker (Production Ready)
+```bash
+# Step 1: Configure environment
+cp .env.example .env
+# Edit .env: Set DB_PASSWORD, MAIL_USERNAME, MAIL_PASSWORD, JWT_SECRET, GANACHE_PRIVATE_KEY
+
+# Step 2: Build and run with Docker Compose (includes PostgreSQL + Ganache + App)
+sudo docker compose up --build -d
+
+# Step 3: View logs
+sudo docker compose logs -f quantum-mail-backend
+
+# Stop services
+sudo docker compose down
+```
+
+**OR Build Docker image only:**
+```bash
+sudo docker build -t quantum-mail-server:v2 .
+```
+
 **Application URL:** http://localhost:8080
 
 ---

@@ -54,7 +54,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: quantum-mail:v2
+    image: sakthiveldk/quantum-mail-server:v1
     container_name: quantum-mail-backend
     restart: unless-stopped
     ports:
@@ -107,8 +107,6 @@ services:
         condition: service_healthy
     networks:
       - quantum-mail-network
-    volumes:
-      - ./.env:/app/.env:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
