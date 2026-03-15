@@ -35,7 +35,7 @@ const createWindow = () => {
           "script-src 'self' 'unsafe-inline'; " +
           "style-src 'self' 'unsafe-inline'; " +
           "img-src 'self' data: https:; " +
-          "connect-src 'self' http://localhost:8080 ws://localhost:*; " +
+          "connect-src 'self' http://localhost:8080 ws://localhost:* https://blockmail-server.onrender.com; " +
           "font-src 'self' data:;"
         ]
       }

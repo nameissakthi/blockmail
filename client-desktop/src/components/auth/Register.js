@@ -259,6 +259,19 @@ export function createRegisterComponent() {
           password: registrationData.password
         });
 
+        if (registerResponse.requiresLogin) {
+          errorMsg.textContent = registerResponse.message;
+          errorMsg.style.display = 'block';
+          btnText.style.display = 'inline';
+          btnLoader.style.display = 'none';
+
+          setTimeout(() => {
+            window.dispatchEvent(new Event('auth:showLogin'));
+          }, 1200);
+
+          return;
+        }
+
         // Update store
         store.setAuth(registerResponse.user, registerResponse.token);
 

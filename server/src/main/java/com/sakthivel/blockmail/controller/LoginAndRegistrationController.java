@@ -4,11 +4,17 @@ import com.sakthivel.blockmail.model.User;
 import com.sakthivel.blockmail.security.JwtUtil;
 import com.sakthivel.blockmail.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 public class LoginAndRegistrationController {
@@ -28,19 +34,35 @@ public class LoginAndRegistrationController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        user.getPassword()
-                )
-        );
+    public ResponseEntity<?> login(@RequestBody User user) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.getEmail(),
+                            user.getPassword()
+                    )
+            );
 
-        return jwtUtil.generateToken(user.getEmail());
+            return ResponseEntity.ok(jwtUtil.generateToken(user.getEmail()));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                    "message", "Invalid email or password"
+            ));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "message", "Authentication failed"
+            ));
+        }
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        return userService.addNewUser(user);
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            return ResponseEntity.ok(userService.addNewUser(user));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "message", e.getMessage()
+            ));
+        }
     }
 }

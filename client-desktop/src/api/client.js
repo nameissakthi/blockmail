@@ -100,12 +100,25 @@ class ApiClient {
   }
 
   handleError(error) {
+    if (error.code === 'ECONNABORTED') {
+      return {
+        message: 'Request timed out. The server took too long to respond.',
+        status: 408
+      };
+    }
+
     if (error.response) {
       // Server responded with error status
+      const responseData = error.response.data;
+      const message =
+        typeof responseData === 'string'
+          ? responseData
+          : responseData?.message || responseData?.error || error.message || 'Server error occurred';
+
       return {
-        message: error.response.data?.message || 'Server error occurred',
+        message,
         status: error.response.status,
-        data: error.response.data
+        data: responseData
       };
     } else if (error.request) {
       // Request made but no response

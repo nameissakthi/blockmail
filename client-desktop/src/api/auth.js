@@ -15,8 +15,19 @@ export const authAPI = {
   async register(userData) {
     try {
       await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.REGISTER, userData);
-      // Backend returns success message, now login to get token
-      return await this.login({ email: userData.email, password: userData.password });
+      // Try automatic login after successful registration.
+      try {
+        return await this.login({ email: userData.email, password: userData.password });
+      } catch (loginError) {
+        return {
+          token: null,
+          user: {
+            email: userData.email
+          },
+          requiresLogin: true,
+          message: 'Account created successfully. Please sign in manually.'
+        };
+      }
     } catch (error) {
       throw error;
     }
@@ -43,6 +54,12 @@ export const authAPI = {
       }
       throw new Error('Invalid login response');
     } catch (error) {
+      if (error?.status === 401 || error?.status === 403) {
+        throw {
+          ...error,
+          message: error.message || 'Invalid email or password.'
+        };
+      }
       throw error;
     }
   },
