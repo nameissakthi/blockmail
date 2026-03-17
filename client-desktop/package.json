@@ -3,6 +3,8 @@
   "productName": "client-desktop",
   "version": "1.0.0",
   "description": "My Electron application description",
+  "author": "Sakthivel",
+  "license": "MIT",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
