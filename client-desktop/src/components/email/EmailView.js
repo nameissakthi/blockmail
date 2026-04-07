@@ -35,7 +35,7 @@ export function createEmailViewComponent(emailId) {
           let decryptionKey = null;
           if (email.securityLevel === 1 || email.securityLevel === 2) {
             // Get quantum key from QKD
-            const keyResponse = await qkdAPI.obtainKeys({
+            const keyResponse = await kmAPI.obtainKeys({
               numberOfKeys: 1,
               keySize: 256
             });
@@ -163,4 +163,3 @@ function getSecurityBadge(level) {
   };
   return badges[level] || badges[4];
 }
-

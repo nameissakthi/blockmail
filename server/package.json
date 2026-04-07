@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Blockchain integration for Quantum Mail",
   "scripts": {
+    "start:win": "powershell -ExecutionPolicy Bypass -File ./start.ps1",
+    "setup:blockchain:win": "powershell -ExecutionPolicy Bypass -File ./setup-blockchain.ps1",
     "compile": "hardhat compile",
     "deploy": "hardhat run scripts/deploy.js --network ganache",
     "deploy:local": "hardhat run scripts/deploy.js --network localhost"

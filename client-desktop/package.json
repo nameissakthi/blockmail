@@ -7,6 +7,7 @@
   "license": "MIT",
   "main": ".vite/build/main.js",
   "scripts": {
+    "start:win": "powershell -ExecutionPolicy Bypass -File ./start-frontend-fixed.ps1",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -22,7 +23,7 @@
     "@electron-forge/plugin-fuses": "^7.11.1",
     "@electron-forge/plugin-vite": "^7.11.1",
     "@electron/fuses": "^1.8.0",
-    "electron": "^26.6.10",
+    "electron": "26.6.10",
     "vite": "^5.4.21"
   },
   "dependencies": {

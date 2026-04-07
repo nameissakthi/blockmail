@@ -6,8 +6,8 @@
 
 // Get base URL from environment variable or use default
 const getBaseUrl = () => {
-  // In Vite, environment variables are accessed via import.meta.env
-  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  return envUrl.replace(/\/$/, '');
 };
 
 export const API_CONFIG = {
@@ -15,7 +15,7 @@ export const API_CONFIG = {
   BASE_URL: getBaseUrl(),
 
   // Timeout for API requests (ms)
-  TIMEOUT: 30000,
+  TIMEOUT: parseInt(import.meta.env.VITE_API_TIMEOUT) || 30000,
 
   // API Endpoints - Updated to match your backend
   ENDPOINTS: {
@@ -61,5 +61,3 @@ export const API_CONFIG = {
 };
 
 export default API_CONFIG;
-
-
